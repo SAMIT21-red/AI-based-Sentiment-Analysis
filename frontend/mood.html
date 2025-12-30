@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
+    <title>Mood Tracker - MindMate</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-emoji">🧠</span>
+                <span class="logo-text">MindMate</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="chat.html" class="nav-link">Chat</a></li>
+                <li><a href="mood.html" class="nav-link active">Mood Tracker</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mood Tracker Content -->
+    <div class="mood-tracker-container">
+        <div class="container">
+            <div class="mood-header">
+                <h1>Your Mood Journey 📊</h1>
+                <p>Track your emotional wellness over time</p>
+            </div>
+
+            <!-- Current Mood -->
+            <div class="current-mood-section">
+                <h2>Current Mood</h2>
+                <div class="current-mood-display" id="currentMoodDisplay">
+                    <div class="mood-circle">
+                        <span class="current-mood-emoji" id="currentMoodEmoji">😐</span>
+                    </div>
+                    <div class="current-mood-info">
+                        <h3 id="currentMoodText">Neutral</h3>
+                        <p id="currentMoodDescription">You seem to be in a balanced state</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mood Summary Cards -->
+            <div class="mood-summary">
+                <h2>Mood Summary</h2>
+                <div class="mood-cards-grid" id="moodCardsGrid">
+                    <div class="mood-card happy-card">
+                        <div class="mood-card-header">
+                            <span class="mood-card-emoji">😊</span>
+                            <h3>Happy</h3>
+                        </div>
+                        <div class="mood-card-count" id="happyCount">0</div>
+                        <div class="mood-card-label">times detected</div>
+                    </div>
+                    <div class="mood-card sad-card">
+                        <div class="mood-card-header">
+                            <span class="mood-card-emoji">😔</span>
+                            <h3>Sad</h3>
+                        </div>
+                        <div class="mood-card-count" id="sadCount">0</div>
+                        <div class="mood-card-label">times detected</div>
+                    </div>
+                    <div class="mood-card angry-card">
+                        <div class="mood-card-header">
+                            <span class="mood-card-emoji">😠</span>
+                            <h3>Angry</h3>
+                        </div>
+                        <div class="mood-card-count" id="angryCount">0</div>
+                        <div class="mood-card-label">times detected</div>
+                    </div>
+                    <div class="mood-card neutral-card">
+                        <div class="mood-card-header">
+                            <span class="mood-card-emoji">😐</span>
+                            <h3>Neutral</h3>
+                        </div>
+                        <div class="mood-card-count" id="neutralCount">0</div>
+                        <div class="mood-card-label">times detected</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mood Chart -->
+            <div class="mood-chart-section">
+                <h2>Mood Visualization</h2>
+                <div class="chart-container">
+                    <canvas id="moodChart" ></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color happy-color"></div>
+                        <span>Happy</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color sad-color"></div>
+                        <span>Sad</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color angry-color"></div>
+                        <span>Angry</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color neutral-color"></div>
+                        <span>Neutral</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Moods -->
+            <div class="recent-moods-section">
+                <h2>Recent Mood History</h2>
+                <div class="recent-moods-list" id="recentMoodsList">
+                    <div class="no-data-message">
+                        <p>No mood data available yet. Start chatting to track your emotions! 💬</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mood-actions">
+                <a href="chat.html" class="btn btn-primary">Go to Chat Again 💬</a>
+                <button id="clearMoodDataBtn" class="btn btn-secondary">Clear Mood Data 🗑️</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const API_URL = "http://localhost:3000/api";
+let moodChart; // Variable to store the chart instance
+
+async function loadMoodSummary() {
+    try {
+        const res = await fetch(`${API_URL}/mood/summary`, {
+            credentials: "include"
+        });
+
+        if (res.status === 401) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const data = await res.json();
+
+        // 1. Update the Summary Count Cards
+        document.getElementById("happyCount").innerText = data.happy || 0;
+        document.getElementById("sadCount").innerText = data.sad || 0;
+        document.getElementById("angryCount").innerText = data.angry || 0;
+        document.getElementById("neutralCount").innerText = data.neutral || 0;
+
+        // 2. Determine Current Mood (Most frequent or just the latest)
+        const counts = { 
+            happy: data.happy || 0, 
+            sad: data.sad || 0, 
+            angry: data.angry || 0, 
+            neutral: data.neutral || 0 
+        };
+        
+        const currentMood = Object.keys(counts).reduce((a, b) => counts[a] >= counts[b] ? a : b);
+
+        const moodMap = {
+            happy: ["😊", "Happy", "You seem to be in a great headspace!"],
+            sad: ["😔", "Sad", "It's okay to feel low; remember to be kind to yourself."],
+            angry: ["😠", "Angry", "Take a moment to breathe and center yourself."],
+            neutral: ["😐", "Neutral", "You are in a calm, balanced state."]
+        };
+
+        if (data.happy || data.sad || data.angry || data.neutral) {
+            document.getElementById("currentMoodEmoji").innerText = moodMap[currentMood][0];
+            document.getElementById("currentMoodText").innerText = moodMap[currentMood][1];
+            document.getElementById("currentMoodDescription").innerText = moodMap[currentMood][2];
+        }
+
+        // 3. Initialize/Update the Chart.js Visualization
+        renderMoodChart(counts);
+        console.log("Chart counts:", counts);
+
+
+    } catch (err) {
+        console.error("Failed to load mood summary:", err);
+    }
+}
+
+function renderMoodChart(counts) {
+  const ctx = document.getElementById('moodChart').getContext('2d');
+
+  // ✅ Prevent empty chart
+  const hasData = Object.values(counts).some(v => v > 0);
+
+  if (!hasData) {
+    console.warn("No mood data yet — chart skipped");
+    return;
+  }
+
+  if (moodChart) {
+    moodChart.destroy();
+  }
+
+  moodChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Happy', 'Sad', 'Angry', 'Neutral'],
+      datasets: [{
+        label: 'Occurrences',
+        data: [
+          counts.happy,
+          counts.sad,
+          counts.angry,
+          counts.neutral
+        ],
+        backgroundColor: [
+          '#FFE066',
+          '#A5D8FF',
+          '#FFC9C9',
+          '#DEE2E6'
+        ],
+        borderRadius: 12
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+
+async function loadRecentMoods() {
+  try {
+    const res = await fetch(`${API_URL}/mood/recent`, {
+      credentials: "include"
+    });
+
+    const moods = await res.json();
+    const list = document.getElementById("recentMoodsList");
+
+    if (!moods.length) return;
+
+    list.innerHTML = ""; // clear "no data" message
+
+    moods.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "recent-mood-item";
+      div.innerHTML = `
+        <span>${getMoodEmoji(m.mood)}</span>
+        <strong>${m.mood.toUpperCase()}</strong>
+        <small>${new Date(m.date).toLocaleString()}</small>
+      `;
+      list.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Recent mood load failed", err);
+  }
+}
+
+function getMoodEmoji(mood) {
+  return {
+    happy: "😊",
+    sad: "😔",
+    angry: "😠",
+    neutral: "😐"
+  }[mood] || "😐";
+}
+
+// Start the loading process
+loadMoodSummary();
+loadRecentMoods()
+</script>
+
+</body>
+
+</html>

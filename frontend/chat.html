@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat - MindMate</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <span class="logo-emoji">🧠</span>
+      <span class="logo-text">MindMate</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="chat.html" class="nav-link active">Chat</a></li>
+      <li><a href="mood.html" class="nav-link">Mood Tracker</a></li>
+      <li><a href="about.html" class="nav-link">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- CHAT CONTAINER -->
+<div class="chat-container">
+
+  <!-- MOOD BAR -->
+  <div class="sentiment-display">
+    <div class="sentiment-content">
+      <span id="sentimentEmoji">😐</span>
+      <span id="sentimentText">Neutral mood</span>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="chat-messages" id="chatMessages">
+    <div class="message bot-message">
+      <div class="message-avatar">🤖</div>
+      <div class="message-content">
+        <div class="message-bubble">
+          Hello! I'm MindMate, your mental wellness companion. 😊  
+          How are you feeling today?
+        </div>
+        <div class="message-time">Just now</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="chat-input-container">
+    <div class="chat-input-wrapper">
+      <input
+        type="text"
+        id="messageInput"
+        placeholder="Share your thoughts..."
+      />
+      <button id="sendButton" class="send-btn">📤</button>
+    </div>
+
+    <div class="input-actions">
+      <button class="action-btn" onclick="location.href='index.html'">🏠 Home</button>
+      <button class="action-btn" onclick="location.href='mood.html'">📊 Mood Tracker</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API_URL = "http://localhost:3000/api";
+
+const messageInput = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
+const chatMessages = document.getElementById("chatMessages");
+const sentimentEmoji = document.getElementById("sentimentEmoji");
+const sentimentText = document.getElementById("sentimentText");
+
+sendButton.addEventListener("click", sendMessage);
+
+messageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+async function sendMessage() {
+  const message = messageInput.value.trim();
+  if (!message) return;
+
+  appendMessage("user", message);
+  messageInput.value = "";
+
+  try {
+    const res = await fetch(`${API_URL}/chat/message`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+    let reply = data.reply || "[NEUTRAL] I'm here with you 💙";
+
+    let mood = "neutral";
+    const match = reply.match(/\[(HAPPY|SAD|ANGRY|NEUTRAL)\]/);
+    if (match) {
+      mood = match[1].toLowerCase();
+      reply = reply.replace(match[0], "").trim();
+    }
+
+    updateMoodUI(mood);
+    appendMessage("bot", reply);
+
+  } catch (err) {
+    console.error(err);
+    appendMessage("bot", "Something went wrong 😔");
+  }
+}
+
+function updateMoodUI(mood) {
+  const moods = {
+    happy: ["😊", "Happy mood"],
+    sad: ["😔", "Sad mood"],
+    angry: ["😠", "Angry mood"],
+    neutral: ["😐", "Neutral mood"]
+  };
+
+  sentimentEmoji.textContent = moods[mood][0];
+  sentimentText.textContent = moods[mood][1];
+}
+
+function appendMessage(sender, text) {
+  const div = document.createElement("div");
+  div.className = `message ${sender}-message`;
+
+  div.innerHTML = `
+    <div class="message-avatar">${sender === "user" ? "😊" : "🤖"}</div>
+    <div class="message-content">
+      <div class="message-bubble">${text}</div>
+      <div class="message-time">
+        ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+      </div>
+    </div>
+  `;
+
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+</script>
+
+</body>
+</html>

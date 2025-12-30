@@ -1,0 +1,149 @@
+`
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Register - MindMate</title>
+  <style>
+    /* Basic reset and page styling */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* The main form container */
+    .container {
+      background-color: #ffffff;
+      padding: 2rem 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      max-width: 450px;
+      width: 100%;
+      box-sizing: border-box; /* Ensures padding doesn't affect width */
+    }
+
+    /* Heading */
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+    }
+
+    /* Form labels */
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    /* Form input fields */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box; /* Important for padding to work nicely */
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    /* Focus state for inputs */
+    input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      outline: none;
+    }
+
+    /* The register button */
+    .btn.btn-primary {
+      width: 100%;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+      margin-top: 0.5rem;
+    }
+
+    /* Button hover state */
+    .btn.btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    /* "Already have an account?" text */
+    p {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #666;
+    }
+
+    p a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    p a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Register</h2>
+    
+    <form id="registerForm">
+      <label>Username</label>
+      <input id="username" required type="text">
+      
+      <label>Email</label>
+      <input type="email" id="email" required>
+      
+      <label>Password</label>
+      <input type="password" id="password" required>
+      
+      <button class="btn btn-primary" type="submit">Register</button>
+    </form>
+    
+    <p>Already have an account? <a href="login.html">Login</a></p>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000/api";
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ username, email, password })
+      });
+      if (res.ok) {
+        alert('Registered and logged in');
+        location.href = 'chat.html';
+      } else {
+        const err = await res.json();
+        alert(err?.error || 'Registration failed');
+      }
+    });
+  </script>
+</body>
+</html>

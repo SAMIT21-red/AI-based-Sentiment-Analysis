@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
+    <title>MindMate - Your Mental Wellness Companion</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<script>
+const API_URL = "http://localhost:3000/api";
+
+document.addEventListener("DOMContentLoaded", () => {
+  checkAuth();
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
+});
+
+async function checkAuth() {
+  try {
+    const res = await fetch(`${API_URL}/auth/me`, {
+      credentials: "include"
+    });
+
+    if (!res.ok) {
+      showLoggedOut();
+      return;
+    }
+
+    const data = await res.json();
+    showLoggedIn(data.username);
+
+  } catch (err) {
+    console.error("Auth check failed:", err);
+    showLoggedOut();
+  }
+}
+
+function showLoggedIn(username) {
+  document.getElementById("loginNav").style.display = "none";
+  document.getElementById("logoutNav").style.display = "block";
+
+  const logoText = document.querySelector(".logo-text");
+  if (logoText) {
+    logoText.textContent = `MindMate (${username})`;
+  }
+}
+
+function showLoggedOut() {
+  document.getElementById("loginNav").style.display = "block";
+  document.getElementById("logoutNav").style.display = "none";
+}
+
+async function logout() {
+  await fetch(`${API_URL}/auth/logout`, {
+    credentials: "include"
+  });
+  window.location.href = "login.html";
+}
+</script>
+
+
+<body>
+    <!-- Navigation Bar -->
+    <!-- Navigation Bar -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <span class="logo-emoji">🧠</span>
+      <span class="logo-text">MindMate</span>
+    </div>
+   <ul class="nav-menu">
+  <li><a href="index.html" class="nav-link">Home</a></li>
+  <li><a href="chat.html" class="nav-link">Chat</a></li>
+  <li><a href="mood.html" class="nav-link">Mood Tracker</a></li>
+  <li><a href="about.html" class="nav-link">About</a></li>
+  <li id="loginNav"><a href="register.html" class="nav-link">Register/Login</a></li>
+  <li id="logoutNav" style="display:none;">
+  <a href="#" class="nav-link" id="logoutBtn">Logout</a>
+</li>
+
+</ul>
+
+
+    <div class="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <!-- 👇 Hidden by default, only appears after login -->
+    <div id="userMenu" class="user-menu hidden">
+      <button id="userIcon" class="user-icon">👤</button>
+      <div id="dropdown" class="dropdown hidden">
+        <a href="profile.html" id="profileLink">Profile</a>
+        <a href="chat.html" id="chatLink">Chat History</a>
+        <!-- <a href="#" id="logoutBtn">Logout</a> -->
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">MindMate</h1>
+                    <p class="hero-subtitle">Your Mental Wellness Companion</p>
+                    <p class="hero-tagline">"Chat. Reflect. Heal."</p>
+                    <p class="hero-description">
+                        Connect with an empathetic AI companion that understands your emotions, 
+                        tracks your mood, and provides supportive conversations whenever you need them.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="chat.html" class="btn btn-primary">Start Chat 💬</a>
+                        <a href="mood.html" class="btn btn-secondary">Track Mood 📊</a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="floating-emoji">🌸</div>
+                    <div class="floating-emoji">💝</div>
+                    <div class="floating-emoji">🌈</div>
+                    <div class="floating-emoji">✨</div>
+                    <div class="hero-illustration">
+                        <div class="chat-bubble bot">Hi there! I'm here to listen 😊</div>
+                        <div class="chat-bubble user">Thank you for being here</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">How MindMate Helps You</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">😊</div>
+                    <h3>Emotion Detection</h3>
+                    <p>Advanced sentiment analysis identifies your emotional state and responds with appropriate empathy and support.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Empathetic Conversations</h3>
+                    <p>Engage in meaningful dialogues with an AI that truly understands and validates your feelings.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Mood Tracking</h3>
+                    <p>Monitor your emotional journey over time with beautiful visualizations and insights.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌙</div>
+                    <h3>24/7 Availability</h3>
+                    <p>Your companion is always here, ready to listen and support you whenever you need it most.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Private & Safe</h3>
+                    <p>All conversations are stored locally on your device, ensuring complete privacy and security.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Calming Design</h3>
+                    <p>Beautiful pastel colors and smooth animations create a peaceful, healing environment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-preview">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>What is MindMate?</h2>
+                    <p>
+                        MindMate is an innovative mental wellness companion designed to provide emotional support 
+                        through AI-powered conversations. Our chatbot uses advanced sentiment analysis to understand 
+                        your emotional state and respond with genuine empathy and care.
+                    </p>
+                    <p>
+                        Whether you're feeling happy, sad, angry, or just need someone to talk to, MindMate is here 
+                        to listen without judgment and offer supportive responses tailored to your emotional needs.
+                    </p>
+                    <div class="mood-indicators">
+                        <div class="mood-item">
+                            <span class="mood-emoji">😊</span>
+                            <span>Happy</span>
+                        </div>
+                        <div class="mood-item">
+                            <span class="mood-emoji">😔</span>
+                            <span>Sad</span>
+                        </div>
+                        <div class="mood-item">
+                            <span class="mood-emoji">😠</span>
+                            <span>Angry</span>
+                        </div>
+                        <div class="mood-item">
+                            <span class="mood-emoji">😐</span>
+                            <span>Neutral</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Always Available</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Private & Secure</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">∞</div>
+                        <div class="stat-label">Unlimited Chats</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Start Your Wellness Journey?</h2>
+                <p>Take the first step towards better mental health with MindMate by your side.</p>
+                <a href="chat.html" class="btn btn-primary btn-large">Start Chatting Now 🚀</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <span class="logo-emoji">🧠</span>
+                        <span class="logo-text">MindMate</span>
+                    </div>
+                    <p>Your trusted mental wellness companion, available 24/7 to support your emotional journey.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">📧</a>
+                        <a href="#" class="social-link">🐦</a>
+                        <a href="#" class="social-link">📱</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="chat.html">Start Chat</a></li>
+                        <li><a href="mood.html">Mood Tracker</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#" onclick="alert('Email: support@mindmate.com')">Contact Us</a></li>
+                        <li><a href="#" onclick="alert('Privacy: All data stored locally on your device')">Privacy Policy</a></li>
+                        <li><a href="#" onclick="alert('Terms: Use responsibly and seek professional help when needed')">Terms of Service</a></li>
+                        <li><a href="about.html#disclaimer">Disclaimer</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Mental Health Resources</h4>
+                    <ul>
+                        <li><a href="#" onclick="alert('Crisis Hotline: 988 (US)')">Crisis Hotline</a></li>
+                        <li><a href="#" onclick="alert('Find local mental health professionals')">Find Help</a></li>
+                        <li><a href="#" onclick="alert('Emergency: Call 911 or local emergency services')">Emergency</a></li>
+                        <li><a href="about.html">Professional Help</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MindMate. Made with 💝 for mental wellness. Not a substitute for professional therapy.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./script.js"></script>
+</body>
+
+</html>
